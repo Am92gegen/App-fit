@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#08080e">
+<title>FitForge — Mon challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08080e;--s1:#0f0f18;--s2:#161622;--s3:#1e1e2c;--s4:#272736;
+  --bd:rgba(255,255,255,.08);--bd2:rgba(255,255,255,.15);
+  --lime:#c9ff47;--ld:rgba(201,255,71,.10);--lm:rgba(201,255,71,.22);
+  --cyan:#47e8ff;--org:#ff7c47;--vio:#a78bfa;
+  --txt:#eeeef8;--t2:rgba(238,238,248,.52);--t3:rgba(238,238,248,.26);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{height:100%;}
+body{
+  min-height:100%;background:var(--bg);
+  font-family:'Manrope',sans-serif;color:var(--txt);
+  /* NO overflow:hidden on body - that was killing desktop input */
+}
+
+/* ── WRAPPER ── */
+.app{
+  min-height:100vh;
+  max-width:540px;margin:0 auto;
+  display:flex;flex-direction:column;
+  padding: env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);
+}
+
+/* ── BG ── */
+.bg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(201,255,71,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(201,255,71,.018) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:radial-gradient(ellipse 90% 80% at 50% 40%,black,transparent);
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  height:56px;background:rgba(8,8,14,.9);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;flex-shrink:0;
+}
+.tb-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;}
+.tb-logo span{color:var(--lime);}
+.tb-back{
+  font-size:13px;color:var(--t2);font-weight:600;
+  padding:8px 14px;border-radius:20px;border:1px solid var(--bd);
+  background:transparent;cursor:pointer;transition:all .18s;
+  font-family:'Manrope',sans-serif;
+}
+.tb-back:hover{color:var(--txt);border-color:var(--bd2);}
+.tb-back:focus{outline:none;}
+.tb-back.hidden{visibility:hidden;pointer-events:none;}
+
+/* ── PROGRESS ── */
+.progress{padding:12px 20px 10px;flex-shrink:0;}
+.prog-dots{display:flex;gap:4px;margin-bottom:6px;}
+.pd{flex:1;height:4px;border-radius:4px;background:var(--s4);transition:background .3s;}
+.pd.done{background:var(--lime);}
+.pd.cur{background:rgba(201,255,71,.4);}
+.prog-info{display:flex;justify-content:space-between;font-size:11px;color:var(--t3);font-weight:600;}
+.prog-name{color:var(--lime);}
+
+/* ── STAGE ── */
+/* Simple: one stage visible at a time using display none/block */
+/* NO position:absolute, NO overflow:hidden on parent, NO height:100% */
+.stage{display:none;padding:16px 20px 32px;position:relative;z-index:1;}
+.stage.active{display:block;}
+
+/* Slide animation — applied via JS class, removed after */
+@keyframes slideInR{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideInL{from{opacity:0;transform:translateX(-30px);}to{opacity:1;transform:translateX(0);}}
+.slide-r{animation:slideInR .22s ease both;}
+.slide-l{animation:slideInL .22s ease both;}
+
+/* ── STAGE CONTENT ── */
+.s-icon{font-size:36px;margin-bottom:12px;display:block;}
+.s-q{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(20px,5.5vw,27px);line-height:1.1;
+  letter-spacing:-.3px;margin-bottom:7px;
+}
+.s-q .hl{color:var(--lime);}
+.s-sub{font-size:13.5px;color:var(--t2);line-height:1.6;margin-bottom:20px;}
+.s-hint{font-size:11px;color:var(--t3);text-align:center;margin-bottom:10px;font-weight:600;}
+
+/* ── CHOICES ── */
+.choices{display:flex;flex-direction:column;gap:9px;margin-bottom:4px;}
+.choice{
+  background:var(--s2);border:1.5px solid var(--bd);border-radius:13px;
+  padding:13px 15px;display:flex;align-items:center;gap:12px;
+  cursor:pointer;transition:border-color .15s,background .15s;
+  user-select:none;
+}
+.choice:hover{border-color:var(--bd2);}
+.choice.on{
+  border-color:var(--lime);background:var(--ld);
+  box-shadow:inset 0 0 0 1px var(--lime);
+}
+.c-ico{font-size:22px;flex-shrink:0;width:32px;text-align:center;}
+.c-txt{flex:1;}
+.c-title{font-weight:700;font-size:14px;margin-bottom:1px;}
+.c-desc{font-size:12px;color:var(--t2);line-height:1.4;}
+.c-chk{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  border:1.5px solid var(--bd2);display:flex;align-items:center;
+  justify-content:center;font-size:10px;font-weight:800;
+  color:transparent;transition:all .15s;
+}
+.choice.on .c-chk{background:var(--lime);border-color:var(--lime);color:var(--bg);}
+
+/* ── PSEUDO INPUT ── */
+/* Simple input, no position tricks */
+.pseudo-field{
+  width:100%;
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(20px,6vw,28px);
+  color:var(--lime);
+  background:var(--s2);
+  border:2px solid var(--bd2);
+  border-radius:13px;
+  padding:16px 18px;
+  outline:none;
+  caret-color:var(--lime);
+  letter-spacing:-.2px;
+  margin-bottom:6px;
+  display:block;
+  /* Explicitly set to make sure nothing blocks it */
+  position:relative;
+  z-index:10;
+  -webkit-user-select:text;
+  user-select:text;
+  -webkit-appearance:none;
+}
+.pseudo-field::placeholder{color:var(--t3);}
+.pseudo-field:focus{border-color:var(--lime);box-shadow:0 0 0 3px rgba(201,255,71,.1);}
+.pseudo-counter{text-align:right;font-size:11px;color:var(--t3);margin-bottom:14px;font-weight:600;}
+.sugs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+.sug{
+  background:var(--s3);border:1px solid var(--bd);border-radius:20px;
+  padding:5px 12px;font-size:12px;font-weight:700;color:var(--t2);
+  cursor:pointer;transition:all .15s;
+}
+.sug:hover,.sug:active{background:var(--ld);border-color:var(--lm);color:var(--lime);}
+
+/* ── AVATAR GRID ── */
+.av-label{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:11px;}
+.av-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.av-item{
+  aspect-ratio:1;border-radius:12px;
+  background:var(--s2);border:1.5px solid var(--bd);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;transition:all .15s;
+}
+.av-item:hover{border-color:var(--bd2);}
+.av-item.on{border-color:var(--lime);background:var(--ld);box-shadow:inset 0 0 0 1px var(--lime);}
+.av-ico{font-size:24px;line-height:1;}
+.av-name{font-size:8.5px;font-weight:700;color:var(--t3);}
+.av-item.on .av-name{color:var(--lime);}
+
+/* ── SLIDER ── */
+.sl-display{text-align:center;margin-bottom:16px;}
+.sl-val{font-family:'Syne',sans-serif;font-weight:800;font-size:48px;color:var(--lime);line-height:1;}
+.sl-unit{font-size:14px;color:var(--t2);}
+.sl-desc{font-size:13px;color:var(--t2);margin-top:4px;}
+input[type=range]{
+  -webkit-appearance:none;width:100%;height:6px;
+  border-radius:40px;outline:none;cursor:pointer;margin-bottom:4px;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:26px;height:26px;border-radius:50%;
+  background:var(--lime);border:3px solid var(--bg);
+  box-shadow:0 0 10px rgba(201,255,71,.3);
+}
+.sl-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--t3);font-weight:600;margin-bottom:20px;}
+
+/* ── RECAP ── */
+.recap{background:var(--s2);border:1px solid var(--bd);border-radius:13px;padding:14px 16px;margin-bottom:16px;}
+.rrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd);}
+.rrow:last-child{border:none;padding-bottom:0;}
+.r-ico{font-size:16px;flex-shrink:0;width:22px;text-align:center;}
+.r-key{font-size:11px;color:var(--t2);font-weight:600;margin-bottom:1px;}
+.r-val{font-weight:700;font-size:13px;}
+.r-lime{color:var(--lime);}
+
+/* ── BUTTONS ── */
+.btn-wrap{padding-top:20px;}
+.btn{
+  width:100%;padding:15px;border-radius:13px;
+  background:var(--lime);color:var(--bg);border:none;
+  font-family:'Manrope',sans-serif;font-weight:800;font-size:15px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:transform .15s,opacity .15s;
+  box-shadow:0 0 20px rgba(201,255,71,.15);
+}
+.btn:hover{transform:translateY(-1px);}
+.btn:active{transform:scale(.97);}
+.btn.off{opacity:.3;cursor:not-allowed;pointer-events:none;transform:none!important;box-shadow:none;}
+
+/* ── INTRO ── */
+.intro-center{
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;padding:16px 0;
+}
+.i-logo{
+  width:64px;height:64px;border-radius:16px;background:var(--lime);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--bg);
+  box-shadow:0 0 32px rgba(201,255,71,.25);margin-bottom:20px;
+}
+.i-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(27px,8vw,38px);line-height:1;margin-bottom:10px;letter-spacing:-.4px;}
+.i-title .lime{color:var(--lime);}
+.i-sub{font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:24px;max-width:300px;}
+.i-features{display:flex;flex-direction:column;gap:8px;width:100%;max-width:300px;margin-bottom:24px;}
+.i-feat{
+  display:flex;align-items:center;gap:10px;
+  background:var(--s2);border:1px solid var(--bd);border-radius:10px;
+  padding:11px 13px;font-size:13px;font-weight:600;text-align:left;
+}
+.i-check{margin-left:auto;color:var(--lime);font-weight:800;}
+.i-time{font-size:12px;color:var(--t3);font-weight:600;}
+
+/* ── AI SCREEN ── */
+.ai-center{
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;padding:32px 0;
+}
+.ai-orb{width:90px;height:90px;border-radius:50%;margin:0 auto 24px;position:relative;}
+.orb-core{
+  width:100%;height:100%;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#d4ff80,var(--lime) 50%,#7aaa00);
+  box-shadow:0 0 30px rgba(201,255,71,.3),0 0 60px rgba(201,255,71,.1);
+  animation:orbP 2s ease-in-out infinite;
+}
+@keyframes orbP{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+.orb-r1{position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(201,255,71,.2);animation:spin1 3s linear infinite;}
+.orb-r1::after{content:'';position:absolute;top:-3px;left:50%;transform:translateX(-50%);width:7px;height:7px;border-radius:50%;background:var(--lime);}
+@keyframes spin1{to{transform:rotate(360deg);}}
+.orb-r2{position:absolute;inset:-18px;border-radius:50%;border:1px solid rgba(201,255,71,.08);animation:spin1 5s linear infinite reverse;}
+.ai-title{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;margin-bottom:6px;}
+.ai-sub{font-size:13px;color:var(--t2);margin-bottom:22px;min-height:36px;line-height:1.5;}
+.ai-steps{width:100%;max-width:300px;margin:0 auto 20px;display:flex;flex-direction:column;gap:7px;}
+.ai-step{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 13px;border-radius:9px;
+  background:var(--s2);border:1px solid var(--bd);
+  opacity:.3;transition:all .35s;
+}
+.ai-step.cur{opacity:1;border-color:var(--bd2);}
+.ai-step.done{opacity:1;background:var(--ld);border-color:var(--lm);}
+.ai-s-ico{font-size:16px;flex-shrink:0;}
+.ai-s-txt{flex:1;font-size:12.5px;font-weight:600;}
+.ai-s-chk{
+  width:18px;height:18px;border-radius:50%;border:1.5px solid var(--bd2);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:8px;font-weight:800;color:transparent;transition:all .25s;
+}
+.ai-step.done .ai-s-chk{background:var(--lime);border-color:var(--lime);color:var(--bg);}
+.ai-status{font-size:12px;color:var(--lime);font-weight:700;}
+
+/* ── FINAL ── */
+.final-center{display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px 0;}
+.f-av{font-size:64px;margin-bottom:14px;line-height:1;}
+.f-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(24px,7vw,32px);margin-bottom:7px;}
+.f-sub{font-size:13.5px;color:var(--t2);margin-bottom:18px;line-height:1.6;}
+.f-xp{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--ld);border:1px solid var(--lm);border-radius:20px;
+  padding:8px 16px;font-family:'Syne',sans-serif;font-weight:800;
+  font-size:14px;color:var(--lime);margin-bottom:20px;
+}
+
+/* ── CONFETTI ── */
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;}
+.cp{position:absolute;border-radius:2px;animation:cf linear forwards;}
+@keyframes cf{0%{opacity:1;transform:translateY(-10px) rotate(0);}100%{opacity:0;transform:translateY(110vh) rotate(720deg);}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="confetti-wrap" id="cWrap"></div>
+
+<div class="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar" id="topbar" style="display:none;">
+    <div class="tb-logo">Fit<span>Forge</span> AI</div>
+    <button class="tb-back hidden" id="backBtn" onclick="prev()">← Retour</button>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress" id="progressBar" style="display:none;">
+    <div class="prog-dots" id="dots"></div>
+    <div class="prog-info">
+      <span class="prog-name" id="pname"></span>
+      <span id="pcnt"></span>
+    </div>
+  </div>
+
+  <!-- ══════════════ STAGES ══════════════ -->
+
+  <!-- 0: INTRO -->
+  <div class="stage active" id="s0">
+    <div class="intro-center">
+      <div class="i-logo">FF</div>
+      <h1 class="i-title">Crée ton<br><span class="lime">challenge 30J</span></h1>
+      <p class="i-sub">Notre IA génère ton programme fitness + nutrition sur mesure en 2 minutes.</p>
+      <div class="i-features">
+        <div class="i-feat">🏋️ Programme sportif quotidien<span class="i-check">✓</span></div>
+        <div class="i-feat">🥗 Plan nutrition personnalisé<span class="i-check">✓</span></div>
+        <div class="i-feat">🏆 XP, niveaux et badges<span class="i-check">✓</span></div>
+        <div class="i-feat">📈 Suivi de progression IA<span class="i-check">✓</span></div>
+      </div>
+      <div class="i-time">⚡ Moins de 2 minutes</div>
+    </div>
+    <div class="btn-wrap">
+      <button class="btn" onclick="next()">Commencer mon challenge →</button>
+    </div>
+  </div>
+
+  <!-- 1: PSEUDO -->
+  <div class="stage" id="s1">
+    <span class="s-icon">🎮</span>
+    <div class="s-q">Choisis ton <span class="hl">pseudo</span></div>
+    <div class="s-sub">Le nom sur ton profil. Pas de vrai nom nécessaire.</div>
+
+    <div style="display:flex;align-items:center;background:var(--s2);border:2px solid var(--bd2);border-radius:13px;margin-bottom:6px;transition:border-color .2s,box-shadow .2s;" id="pseudoWrap">
+      <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(20px,6vw,28px);color:var(--t3);padding-left:18px;flex-shrink:0;line-height:1;pointer-events:none;user-select:none;">@</span>
+      <input
+        type="text"
+        id="pseudoInput"
+        class="pseudo-field"
+        placeholder="TonPseudo"
+        maxlength="18"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="none"
+        spellcheck="false"
+        style="border:none;border-radius:0;margin-bottom:0;padding-left:4px;background:transparent;box-shadow:none;"
+      >
+    </div>
+    <div class="pseudo-counter"><span id="plen">0</span> / 18</div>
+    <div class="sugs" id="sugs"></div>
+
+    <div class="av-label">Choisis ton avatar</div>
+    <div class="av-grid" id="avGrid"></div>
+
+    <div class="btn-wrap">
+      <button class="btn off" id="btnPseudo" onclick="next()">Valider mon identité →</button>
+    </div>
+  </div>
+
+  <!-- 2: OBJECTIF -->
+  <div class="stage" id="s2">
+    <span class="s-icon">🎯</span>
+    <div class="s-q">Ton <span class="hl">objectif</span> ?</div>
+    <div class="s-sub">Plusieurs choix possibles. Le programme équilibrera tes priorités.</div>
+    <div class="s-hint">Sélectionne une ou plusieurs réponses</div>
+    <div class="choices" id="ch-obj">
+      <div class="choice" data-val="Perte de poids"><span class="c-ico">🔥</span><div class="c-txt"><div class="c-title">Perte de poids</div><div class="c-desc">Brûler les graisses, affiner la silhouette</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Prise de muscle"><span class="c-ico">💪</span><div class="c-txt"><div class="c-title">Prise de muscle</div><div class="c-desc">Gagner en masse et en force</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Remise en forme"><span class="c-ico">⚡</span><div class="c-txt"><div class="c-title">Remise en forme</div><div class="c-desc">Retrouver énergie et bonne condition</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Performance sportive"><span class="c-ico">🏅</span><div class="c-txt"><div class="c-title">Performance sportive</div><div class="c-desc">Améliorer endurance, vitesse ou force</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Bien-être & santé"><span class="c-ico">🧘</span><div class="c-txt"><div class="c-title">Bien-être & santé</div><div class="c-desc">Bouger plus, réduire le stress, mieux dormir</div></div><div class="c-chk">✓</div></div>
+    </div>
+    <div class="btn-wrap"><button class="btn off" id="btn-obj" onclick="next()">Confirmer →</button></div>
+  </div>
+
+  <!-- 3: NIVEAU -->
+  <div class="stage" id="s3">
+    <span class="s-icon">📊</span>
+    <div class="s-q">Ton <span class="hl">niveau</span> sportif ?</div>
+    <div class="s-sub">Sois honnête — ça calibre l'intensité. Plusieurs choix possibles.</div>
+    <div class="s-hint">Sélectionne une ou plusieurs réponses</div>
+    <div class="choices" id="ch-niv">
+      <div class="choice" data-val="Débutant"><span class="c-ico">🌱</span><div class="c-txt"><div class="c-title">Débutant</div><div class="c-desc">Je reprends ou je démarre de zéro</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Intermédiaire"><span class="c-ico">🔆</span><div class="c-txt"><div class="c-title">Intermédiaire</div><div class="c-desc">Je m'entraîne régulièrement depuis plusieurs mois</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Avancé"><span class="c-ico">⚡</span><div class="c-txt"><div class="c-title">Avancé</div><div class="c-desc">Entraînement sérieux depuis plus d'un an</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Athlète"><span class="c-ico">🏆</span><div class="c-txt"><div class="c-title">Athlète</div><div class="c-desc">Compétition ou pratique très intensive</div></div><div class="c-chk">✓</div></div>
+    </div>
+    <div class="btn-wrap"><button class="btn off" id="btn-niv" onclick="next()">C'est mon niveau →</button></div>
+  </div>
+
+  <!-- 4: ÉQUIPEMENT -->
+  <div class="stage" id="s4">
+    <span class="s-icon">🏠</span>
+    <div class="s-q">Tu t'entraînes <span class="hl">où</span> ?</div>
+    <div class="s-sub">Coche tout ce qui s'applique. Le programme s'adapte.</div>
+    <div class="s-hint">Sélectionne une ou plusieurs réponses</div>
+    <div class="choices" id="ch-eq">
+      <div class="choice" data-val="Maison sans matériel"><span class="c-ico">🏠</span><div class="c-txt"><div class="c-title">Maison — sans matériel</div><div class="c-desc">Poids du corps, cardio, gainage</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Maison avec matériel"><span class="c-ico">🪑</span><div class="c-txt"><div class="c-title">Maison — petit matériel</div><div class="c-desc">Haltères, élastiques, barre de traction…</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Salle de sport"><span class="c-ico">🏋️</span><div class="c-txt"><div class="c-title">Salle de sport</div><div class="c-desc">Accès à tous les équipements pros</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Extérieur"><span class="c-ico">🌳</span><div class="c-txt"><div class="c-title">Extérieur</div><div class="c-desc">Course, parcs, barres, escaliers…</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Piscine"><span class="c-ico">🏊</span><div class="c-txt"><div class="c-title">Piscine</div><div class="c-desc">Accès à un bassin</div></div><div class="c-chk">✓</div></div>
+    </div>
+    <div class="btn-wrap"><button class="btn off" id="btn-eq" onclick="next()">C'est mon setup →</button></div>
+  </div>
+
+  <!-- 5: DISPO -->
+  <div class="stage" id="s5">
+    <span class="s-icon">⏱</span>
+    <div class="s-q">Ton <span class="hl">temps disponible</span> ?</div>
+    <div class="s-sub">Les séances tiendront dans ton agenda réel.</div>
+    <div class="sl-display">
+      <span class="sl-val" id="tVal">30</span><span class="sl-unit"> min / jour</span>
+      <div class="sl-desc" id="tDesc">Séances courtes et intenses — idéal</div>
+    </div>
+    <input type="range" id="tSlider" min="15" max="90" step="5" value="30" oninput="onSlider(this.value)">
+    <div class="sl-labels"><span>15 min</span><span>45 min</span><span>90 min</span></div>
+
+    <div class="s-sub" style="margin-bottom:10px;">Combien de jours par semaine ?</div>
+    <div class="s-hint">Sélectionne une ou plusieurs réponses</div>
+    <div class="choices" id="ch-jours">
+      <div class="choice" data-val="2 jours/semaine"><span class="c-ico">2️⃣</span><div class="c-txt"><div class="c-title">2 jours / semaine</div><div class="c-desc">Maintien et remise en forme douce</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="3 jours/semaine"><span class="c-ico">3️⃣</span><div class="c-txt"><div class="c-title">3 jours / semaine</div><div class="c-desc">Lun · Mer · Ven — rythme idéal</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="4 jours/semaine"><span class="c-ico">4️⃣</span><div class="c-txt"><div class="c-title">4 jours / semaine</div><div class="c-desc">Rythme optimal pour progresser</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="5 jours/semaine"><span class="c-ico">5️⃣</span><div class="c-txt"><div class="c-title">5 jours / semaine</div><div class="c-desc">Mode challenger intense</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="6-7 jours/semaine"><span class="c-ico">🔥</span><div class="c-txt"><div class="c-title">6-7 jours / semaine</div><div class="c-desc">Mode athlète avec récup active</div></div><div class="c-chk">✓</div></div>
+    </div>
+    <div class="btn-wrap"><button class="btn off" id="btn-jours" onclick="next()">C'est mon rythme →</button></div>
+  </div>
+
+  <!-- 6: NUTRITION -->
+  <div class="stage" id="s6">
+    <span class="s-icon">🥗</span>
+    <div class="s-q">Tes <span class="hl">préférences alimentaires</span> ?</div>
+    <div class="s-sub">Pour un plan nutrition adapté. Plusieurs choix possibles.</div>
+    <div class="s-hint">Sélectionne une ou plusieurs réponses</div>
+    <div class="choices" id="ch-nut">
+      <div class="choice" data-val="Omnivore"><span class="c-ico">🍗</span><div class="c-txt"><div class="c-title">Omnivore</div><div class="c-desc">Je mange de tout</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Flexitarien"><span class="c-ico">🥩</span><div class="c-txt"><div class="c-title">Flexitarien</div><div class="c-desc">Je limite la viande</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Végétarien"><span class="c-ico">🥕</span><div class="c-txt"><div class="c-title">Végétarien</div><div class="c-desc">Pas de viande ni poisson</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Vegan"><span class="c-ico">🌱</span><div class="c-txt"><div class="c-title">Vegan</div><div class="c-desc">Zéro produit animal</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Sans gluten"><span class="c-ico">🌾</span><div class="c-txt"><div class="c-title">Sans gluten</div><div class="c-desc">Intolérance ou préférence</div></div><div class="c-chk">✓</div></div>
+      <div class="choice" data-val="Sans lactose"><span class="c-ico">🥛</span><div class="c-txt"><div class="c-title">Sans lactose</div><div class="c-desc">Pas de lait ni dérivés</div></div><div class="c-chk">✓</div></div>
+    </div>
+    <div class="btn-wrap"><button class="btn off" id="btn-nut" onclick="next()">Valider →</button></div>
+  </div>
+
+  <!-- 7: RÉCAP -->
+  <div class="stage" id="s7">
+    <span class="s-icon">✅</span>
+    <div class="s-q">Ton <span class="hl">profil challenger</span></div>
+    <div class="s-sub">Vérifie tes réponses. Tu peux revenir modifier n'importe quelle étape.</div>
+    <div class="recap" id="recapEl"></div>
+    <div class="btn-wrap"><button class="btn" onclick="startAI()">🚀 Générer mon programme IA</button></div>
+  </div>
+
+  <!-- 8: AI LOADING -->
+  <div class="stage" id="s8">
+    <div class="ai-center">
+      <div class="ai-orb">
+        <div class="orb-r1"></div><div class="orb-r2"></div>
+        <div class="orb-core"></div>
+      </div>
+      <div class="ai-title">Génération en cours…</div>
+      <div class="ai-sub" id="aiSub">Analyse de ton profil…</div>
+      <div class="ai-steps">
+        <div class="ai-step" id="ai1"><span class="ai-s-ico">🧠</span><span class="ai-s-txt">Analyse du profil</span><div class="ai-s-chk">✓</div></div>
+        <div class="ai-step" id="ai2"><span class="ai-s-ico">🏋️</span><span class="ai-s-txt">Programme sportif</span><div class="ai-s-chk">✓</div></div>
+        <div class="ai-step" id="ai3"><span class="ai-s-ico">🥗</span><span class="ai-s-txt">Plan nutrition</span><div class="ai-s-chk">✓</div></div>
+        <div class="ai-step" id="ai4"><span class="ai-s-ico">🛒</span><span class="ai-s-txt">Liste de courses</span><div class="ai-s-chk">✓</div></div>
+        <div class="ai-step" id="ai5"><span class="ai-s-ico">🏆</span><span class="ai-s-txt">Gamification & XP</span><div class="ai-s-chk">✓</div></div>
+      </div>
+      <div class="ai-status" id="aiSt">Initialisation…</div>
+    </div>
+  </div>
+
+  <!-- 9: FINAL -->
+  <div class="stage" id="s9">
+    <div class="final-center">
+      <div class="f-av" id="fAv">🦁</div>
+      <div class="f-title">Prêt, <span id="fPseudo" style="color:var(--lime)">Challenger</span> !</div>
+      <div class="f-sub">Ton programme 30 jours est généré selon ton profil exact.</div>
+      <div class="f-xp">⚡ +500 XP · Niveau 1 débloqué</div>
+      <div class="recap" id="finalRecap" style="width:100%;text-align:left;margin-bottom:16px;"></div>
+    </div>
+    <div class="btn-wrap">
+      <button class="btn" onclick="alert('→ fitai-mobile-dashboard.html')">Voir mon programme →</button>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+/* ── CONFIG ── */
+const STAGES = 9; // 0=intro, 1-7=questions, 8=ai, 9=final
+const NAMES  = ['','Identité','Objectif','Niveau','Équipement','Disponibilité','Nutrition','Récap','',''];
+const AVATARS= [{e:'🦁',n:'Lion'},{e:'🐺',n:'Wolf'},{e:'🦊',n:'Fox'},{e:'🐯',n:'Tiger'},
+                {e:'🦅',n:'Eagle'},{e:'🐉',n:'Dragon'},{e:'🦋',n:'Butterfly'},{e:'🦈',n:'Shark'},
+                {e:'🐻',n:'Bear'},{e:'🦏',n:'Rhino'},{e:'🐆',n:'Leopard'},{e:'🦬',n:'Bison'}];
+const SUGS   = ['IronWolf','FlameRunner','NightBeast','CyberFox','GhostLion','SteelBear','NeonEagle','DarkStar','PixelBull','ZeroG'];
+const T_DESC = {15:'Éclair — HIIT ultra-court',20:'Ultra-compact',25:'Court et intense',30:'Séances courtes — idéal',35:'Bon équilibre',40:'Programme complet',45:'Séance standard',50:'Entraînement poussé',55:'Programme intensif',60:'Séance longue',65:'Compétiteur',70:'Mode athlète',75:'Entraînement élite',80:'Ultra-complet',85:'Session pro',90:'Mode beast'};
+
+/* ── STATE ── */
+let cur = 0;
+const P = { pseudo:'', avatar:'🦁', time:30 };
+const SEL = { obj:[], niv:[], eq:[], jours:[], nut:[] };
+
+/* ── CHOICES SETUP ── */
+// Map stage ids to selection keys and button ids
+const STAGE_MAP = {
+  2:{ key:'obj',  btn:'btn-obj'   },
+  3:{ key:'niv',  btn:'btn-niv'   },
+  4:{ key:'eq',   btn:'btn-eq'    },
+  5:{ key:'jours',btn:'btn-jours' },
+  6:{ key:'nut',  btn:'btn-nut'   },
+};
+const CH_IDS = { 2:'ch-obj', 3:'ch-niv', 4:'ch-eq', 5:'ch-jours', 6:'ch-nut' };
+
+// Wire up all choice clicks
+Object.entries(CH_IDS).forEach(([stageNum, chId]) => {
+  const container = document.getElementById(chId);
+  if (!container) return;
+  const { key, btn: btnId } = STAGE_MAP[stageNum];
+  container.querySelectorAll('.choice').forEach(el => {
+    el.addEventListener('click', () => {
+      const val = el.dataset.val;
+      el.classList.toggle('on');
+      const arr = SEL[key];
+      const idx = arr.indexOf(val);
+      if (idx === -1) arr.push(val); else arr.splice(idx, 1);
+      P[key] = arr;
+      document.getElementById(btnId).classList.toggle('off', arr.length === 0);
+      if (navigator.vibrate) navigator.vibrate(8);
+    });
+  });
+});
+
+/* ── PSEUDO ── */
+function initPseudo() {
+  // Suggestions
+  const sBox = document.getElementById('sugs');
+  [...SUGS].sort(()=>Math.random()-.5).slice(0,6).forEach(s => {
+    const b = document.createElement('div');
+    b.className = 'sug'; b.textContent = s;
+    b.addEventListener('click', () => {
+      const inp = document.getElementById('pseudoInput');
+      inp.value = s; checkPseudo();
+    });
+    sBox.appendChild(b);
+  });
+
+  // Avatar grid
+  const grid = document.getElementById('avGrid');
+  AVATARS.forEach((av, i) => {
+    const d = document.createElement('div');
+    d.className = 'av-item' + (i===0?' on':'');
+    d.innerHTML = `<span class="av-ico">${av.e}</span><span class="av-name">${av.n}</span>`;
+    d.addEventListener('click', () => {
+      document.querySelectorAll('.av-item').forEach(x=>x.classList.remove('on'));
+      d.classList.add('on');
+      P.avatar = av.e;
+      if (navigator.vibrate) navigator.vibrate(8);
+      checkPseudo();
+    });
+    grid.appendChild(d);
+  });
+
+  // Input events — attach directly via JS (more reliable than inline handlers)
+  const inp = document.getElementById('pseudoInput');
+  ['input','keyup','keydown','paste','change'].forEach(evt => {
+    inp.addEventListener(evt, checkPseudo);
+  });
+}
+
+function checkPseudo() {
+  const v = (document.getElementById('pseudoInput').value || '').trim();
+  document.getElementById('plen').textContent = v.length;
+  P.pseudo = v;
+  document.getElementById('btnPseudo').classList.toggle('off', v.length < 2);
+}
+
+// Wire focus/blur on wrapper
+document.getElementById('pseudoInput').addEventListener('focus', () => {
+  const w = document.getElementById('pseudoWrap');
+  w.style.borderColor = 'var(--lime)';
+  w.style.boxShadow = '0 0 0 3px rgba(201,255,71,.1)';
+});
+document.getElementById('pseudoInput').addEventListener('blur', () => {
+  const w = document.getElementById('pseudoWrap');
+  w.style.borderColor = '';
+  w.style.boxShadow = '';
+});
+
+/* ── SLIDER ── */
+function onSlider(v) {
+  P.time = parseInt(v);
+  document.getElementById('tVal').textContent = v;
+  document.getElementById('tDesc').textContent = T_DESC[v] || '';
+  const s = document.getElementById('tSlider');
+  const pct = ((parseInt(v)-15)/(90-15))*100;
+  s.style.background = `linear-gradient(90deg,var(--lime) ${pct}%,var(--s4) ${pct}%)`;
+}
+
+/* ── NAVIGATION ── */
+function show(n, dir) {
+  // Hide old
+  const old = document.getElementById('s'+cur);
+  old.classList.remove('active','slide-r','slide-l');
+
+  // Show new
+  const el = document.getElementById('s'+n);
+  el.classList.remove('slide-r','slide-l');
+  el.classList.add('active');
+  // Animation on next frame so display:block is applied first
+  requestAnimationFrame(() => el.classList.add(dir>0?'slide-r':'slide-l'));
+
+  cur = n;
+
+  // Topbar + progress
+  const showBar = cur > 0 && cur < 8;
+  document.getElementById('topbar').style.display = cur >= 8 ? 'none' : 'flex';
+  document.getElementById('progressBar').style.display = showBar ? 'block' : 'none';
+  document.getElementById('backBtn').classList.toggle('hidden', cur <= 1);
+
+  if (showBar) {
+    const step = cur; // steps 1-7
+    const total = 7;
+    const dots = document.getElementById('dots');
+    dots.innerHTML = '';
+    for (let i=1; i<=total; i++) {
+      const d = document.createElement('div');
+      d.className = 'pd' + (i<step?' done': i===step?' cur':'');
+      dots.appendChild(d);
+    }
+    document.getElementById('pname').textContent = NAMES[cur]||'';
+    document.getElementById('pcnt').textContent = `${step} / ${total}`;
+  }
+
+  // Scroll to top
+  window.scrollTo(0,0);
+
+  // Stage-specific
+  if (cur===7) buildRecap();
+  if (cur===9) buildFinal();
+}
+
+function next() { show(cur+1, 1); }
+function prev() { if (cur>1) show(cur-1, -1); }
+
+/* ── RECAP ── */
+function fmt(arr) { return Array.isArray(arr)&&arr.length ? arr.join(', ') : '—'; }
+function recapHTML() {
+  return [
+    {i:'🎮',k:'Pseudo',   v:'@'+(P.pseudo||'?'), lime:true},
+    {i:'🎯',k:'Objectifs',v:fmt(SEL.obj)},
+    {i:'📊',k:'Niveau',   v:fmt(SEL.niv)},
+    {i:'🏠',k:'Équipement',v:fmt(SEL.eq)},
+    {i:'⏱', k:'Temps',    v:P.time+' min/jour'},
+    {i:'📅',k:'Fréquence',v:fmt(SEL.jours)},
+    {i:'🥗',k:'Nutrition',v:fmt(SEL.nut)||'Non précisé'},
+    {i:'🦁',k:'Avatar',   v:P.avatar},
+  ].map(r=>`<div class="rrow"><span class="r-ico">${r.i}</span><div><div class="r-key">${r.k}</div><div class="r-val${r.lime?' r-lime':''}">${r.v}</div></div></div>`).join('');
+}
+function buildRecap()  { document.getElementById('recapEl').innerHTML = recapHTML(); }
+function buildFinal()  {
+  document.getElementById('fAv').textContent = P.avatar;
+  document.getElementById('fPseudo').textContent = P.pseudo||'Challenger';
+  document.getElementById('finalRecap').innerHTML = recapHTML();
+}
+
+/* ── AI ── */
+const AI_SEQ = [
+  {id:'ai1',sub:'Analyse du profil…',delay:500},
+  {id:'ai2',sub:'Programme sportif…',delay:1300},
+  {id:'ai3',sub:'Plan nutrition…',delay:2200},
+  {id:'ai4',sub:'Liste de courses…',delay:3100},
+  {id:'ai5',sub:'Gamification & XP…',delay:4000},
+];
+function startAI() {
+  show(8,1);
+  AI_SEQ.forEach(({id,sub,delay},i) => {
+    setTimeout(() => {
+      if(i>0){ const p=document.getElementById(AI_SEQ[i-1].id); p.classList.remove('cur'); p.classList.add('done'); }
+      const el=document.getElementById(id); el.classList.add('cur');
+      document.getElementById('aiSub').textContent=sub;
+      document.getElementById('aiSt').textContent=`Étape ${i+1} / ${AI_SEQ.length}`;
+      if(navigator.vibrate) navigator.vibrate(12);
+    },delay);
+  });
+  setTimeout(()=>{
+    document.getElementById(AI_SEQ[AI_SEQ.length-1].id).classList.replace('cur','done');
+    document.getElementById('aiSub').textContent='🎉 Programme prêt !';
+    document.getElementById('aiSt').textContent='Tout est configuré !';
+    confetti();
+    if(navigator.vibrate) navigator.vibrate(40);
+    setTimeout(()=>show(9,1),900);
+  },5000);
+}
+
+/* ── CONFETTI ── */
+function confetti() {
+  const wrap=document.getElementById('cWrap');
+  const cols=['#c9ff47','#47e8ff','#ff7c47','#a78bfa','#fff'];
+  for(let i=0;i<70;i++) setTimeout(()=>{
+    const p=document.createElement('div'); p.className='cp';
+    const sz=6+Math.random()*6;
+    p.style.cssText=`left:${Math.random()*100}%;width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.2+Math.random()*1.2}s;animation-delay:${Math.random()*.3}s;`;
+    wrap.appendChild(p); setTimeout(()=>p.remove(),2800);
+  },i*25);
+}
+
+/* ── BOOT ── */
+initPseudo();
+onSlider(30);
+</script>
+</body>
+</html>

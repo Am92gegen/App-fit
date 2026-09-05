@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#08080e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>FitForge AI — Ton challenge 30 jours généré par l'IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<style>
+
+/* ── GLOBAL OVERFLOW FIXES ── */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+img, video, svg, canvas {
+  max-width: 100%;
+  height: auto;
+}
+/* Force all text to wrap */
+* {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+/* Hero title: prevent huge text from overflowing */
+.hero-title {
+  white-space: normal !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+/* Mockup: clamp width so it never exceeds screen */
+.hero-mockup {
+  max-width: 100%;
+  overflow: hidden;
+}
+/* Float badge: keep inside screen on mobile */
+.float-badge {
+  display: none;
+}
+@media(min-width:640px) {
+  .float-badge { display: block; }
+}
+/* Steps list: no horizontal overflow */
+.steps-list {
+  overflow: hidden;
+}
+/* Pill badges: wrap instead of overflow */
+.mini-badges {
+  flex-wrap: wrap;
+}
+/* Stats grid in features: scale down on tiny screens */
+.feat-card [style*="grid-template-columns: repeat(4"] {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+/* CTA stats: always 2 cols on mobile */
+@media(max-width:440px) {
+  .cta-stats {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .prog-stats {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+/* Footer columns: single col on very small screens */
+@media(max-width:380px) {
+  .footer-cols {
+    grid-template-columns: 1fr !important;
+  }
+}
+/* Macro row: prevent overflow */
+.macro-row {
+  overflow: hidden;
+}
+/* Section inner: add horizontal safety padding */
+.section-inner {
+  overflow: hidden;
+}
+/* URL bar: truncate text */
+.url-bar {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* Hero sub: allow wrapping */
+.hero-sub {
+  white-space: normal !important;
+  word-break: break-word;
+}
+/* Quick grid on very small screens */
+@media(max-width:360px) {
+  .quick-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .m-stats {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .hero-title {
+    font-size: 34px !important;
+  }
+  .nav-cta-sm {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+}
+/* Ensure section padding doesn't cause bleed */
+section, .hero {
+  overflow-x: hidden;
+}
+
+/* ── TOKENS ── */
+:root{
+  --bg:#08080e;
+  --s1:#0f0f18;
+  --s2:#161622;
+  --s3:#1e1e2c;
+  --s4:#272736;
+  --bd:rgba(255,255,255,.07);
+  --bd2:rgba(255,255,255,.13);
+  --lime:#c9ff47;
+  --limed:rgba(201,255,71,.1);
+  --limem:rgba(201,255,71,.22);
+  --cyan:#47e8ff;
+  --cyand:rgba(71,232,255,.08);
+  --org:#ff7c47;
+  --violet:#a78bfa;
+  --txt:#eeeef8;
+  --t2:rgba(238,238,248,.52);
+  --t3:rgba(238,238,248,.26);
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);font-family:'Manrope',sans-serif;color:var(--txt);overflow-x:hidden;}
+
+/* ── NAVBAR ── */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:rgba(8,8,14,.88);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--bd);
+  height:calc(56px + var(--safe-top));
+  padding-top:var(--safe-top);
+  display:flex;align-items:center;
+  padding-left:16px;padding-right:16px;
+  justify-content:space-between;
+}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:19px;letter-spacing:.3px;}
+.nav-logo span{color:var(--lime);}
+.nav-links{display:none;}
+.nav-cta-sm{
+  background:var(--lime);color:var(--bg);
+  border:none;border-radius:20px;
+  padding:9px 18px;font-family:'Manrope',sans-serif;
+  font-weight:700;font-size:13px;cursor:pointer;
+  transition:transform .18s,box-shadow .18s;
+  white-space:nowrap;
+}
+.nav-cta-sm:active{transform:scale(.96);}
+.nav-burger{
+  display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;
+}
+.nav-burger span{display:block;width:22px;height:2px;background:var(--txt);border-radius:2px;transition:all .25s;}
+
+/* ── MOBILE MENU ── */
+.mobile-menu{
+  display:none;
+  position:fixed;inset:0;z-index:190;
+  background:rgba(8,8,14,.97);
+  backdrop-filter:blur(24px);
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:32px;padding-top:var(--safe-top);
+}
+.mobile-menu.open{display:flex;}
+.mm-link{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:24px;
+  color:var(--t2);text-decoration:none;transition:color .18s;
+}
+.mm-link:active{color:var(--lime);}
+.mm-cta{
+  background:var(--lime);color:var(--bg);
+  border:none;border-radius:14px;padding:16px 36px;
+  font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;
+  cursor:pointer;margin-top:8px;width:100%;max-width:280px;text-align:center;
+}
+.mm-close{
+  position:absolute;top:calc(18px + var(--safe-top));right:18px;
+  font-size:24px;color:var(--t2);cursor:pointer;padding:8px;
+}
+
+/* ── SECTIONS ── */
+section{padding:64px 20px;}
+.section-inner{max-width:1080px;margin:0 auto;}
+.sec-tag{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:11px;font-weight:700;color:var(--lime);
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;
+}
+.sec-tag::before{content:'';width:18px;height:1px;background:var(--lime);}
+.sec-title{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(28px,7vw,52px);
+  line-height:1.05;letter-spacing:-.5px;
+  margin-bottom:14px;
+}
+.sec-desc{font-size:15px;color:var(--t2);line-height:1.7;max-width:480px;}
+
+/* shared */
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;}
+.pill-lime{background:var(--limed);border:1px solid var(--limem);color:var(--lime);}
+.pill-cyan{background:var(--cyand);border:1px solid rgba(71,232,255,.2);color:var(--cyan);}
+.card{background:var(--s2);border:1px solid var(--bd);border-radius:14px;}
+.pbar{height:6px;background:var(--s4);border-radius:40px;overflow:hidden;}
+.pfill{height:100%;border-radius:40px;}
+
+/* ═══════════
+   HERO
+═══════════ */
+.hero{
+  min-height:100svh;
+  padding-top:calc(72px + var(--safe-top));
+  padding-bottom:48px;
+  padding-left:20px;padding-right:20px;
+  display:flex;flex-direction:column;
+  justify-content:center;
+  position:relative;overflow:hidden;
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,black,transparent);
+  pointer-events:none;
+}
+.hero-glow{
+  position:absolute;top:-10%;left:50%;transform:translateX(-50%);
+  width:min(600px,120vw);height:400px;
+  background:radial-gradient(ellipse,rgba(201,255,71,.09),transparent 70%);
+  pointer-events:none;
+}
+.hero-glow2{
+  position:absolute;bottom:0;right:-20%;
+  width:300px;height:300px;
+  background:radial-gradient(circle,rgba(71,232,255,.06),transparent 70%);
+  pointer-events:none;
+}
+
+.hero-label{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--limed);border:1px solid var(--limem);
+  border-radius:20px;padding:6px 14px;
+  font-size:12px;font-weight:700;color:var(--lime);
+  margin-bottom:20px;width:fit-content;
+}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--lime);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(.7);opacity:.5;}}
+
+.hero-title{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(40px,11vw,88px);
+  line-height:.95;letter-spacing:-1px;
+  margin-bottom:6px;
+}
+.hero-title .outline{
+  color:transparent;
+  -webkit-text-stroke:2px var(--lime);
+}
+.hero-title .fill{color:var(--lime);}
+
+.hero-sub{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:clamp(16px,4.5vw,28px);
+  color:var(--t2);margin-bottom:20px;letter-spacing:-.2px;
+}
+
+.hero-desc{
+  font-size:15px;color:var(--t2);line-height:1.7;
+  max-width:440px;margin-bottom:28px;
+}
+
+.hero-actions{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+.btn-hero{
+  background:var(--lime);color:var(--bg);
+  border:none;border-radius:14px;
+  padding:16px 24px;
+  font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:transform .18s,box-shadow .18s;
+  box-shadow:0 0 32px rgba(201,255,71,.2);
+  width:100%;
+}
+.btn-hero:active{transform:scale(.97);}
+.btn-ghost{
+  background:transparent;color:var(--txt);
+  border:1px solid var(--bd2);border-radius:14px;
+  padding:15px 24px;font-weight:600;font-size:15px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:background .18s;width:100%;
+}
+.btn-ghost:active{background:var(--s2);}
+
+.social-proof{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.avatars{display:flex;}
+.av{
+  width:30px;height:30px;border-radius:50%;
+  border:2px solid var(--s1);
+  background:var(--s3);margin-left:-8px;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+.av:first-child{margin-left:0;}
+.sp-text{font-size:12px;color:var(--t2);}
+.sp-text strong{color:var(--txt);}
+.stars{color:var(--lime);font-size:12px;letter-spacing:1px;display:block;}
+
+/* Mockup */
+.hero-mockup{
+  margin-top:40px;
+  border-radius:20px;
+  background:var(--s1);
+  border:1px solid var(--bd2);
+  overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04);
+  position:relative;
+}
+.mockup-bar{
+  background:var(--s2);border-bottom:1px solid var(--bd);
+  padding:10px 16px;display:flex;align-items:center;gap:10px;
+}
+.dots{display:flex;gap:5px;}
+.dot{width:9px;height:9px;border-radius:50%;}
+.dot-r{background:#ff5f57;}.dot-y{background:#febc2e;}.dot-g{background:#28c840;}
+.url-bar{
+  flex:1;height:24px;background:var(--s3);border-radius:6px;
+  display:flex;align-items:center;padding:0 10px;
+  font-size:10px;color:var(--t3);gap:5px;
+}
+.mockup-body{padding:16px;}
+.m-greeting{font-size:11px;color:var(--t2);margin-bottom:2px;}
+.m-name{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;margin-bottom:12px;}
+.m-name span{color:var(--lime);}
+.m-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.ms{background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:10px;text-align:center;}
+.ms-val{font-family:'Syne',sans-serif;font-weight:800;font-size:19px;line-height:1;}
+.ms-lbl{font-size:10px;color:var(--t2);margin-top:2px;}
+.m-prog{background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:11px;margin-bottom:10px;}
+.mp-row{display:flex;justify-content:space-between;margin-bottom:7px;}
+.mp-title{font-size:12px;font-weight:700;}
+.mp-day{font-size:11px;color:var(--t2);}
+.m-exs{display:flex;flex-direction:column;gap:6px;}
+.mex{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:10px;display:flex;align-items:center;gap:9px;}
+.mex-ico{width:28px;height:28px;border-radius:7px;background:var(--limed);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.mex-name{font-size:12px;font-weight:700;}
+.mex-sets{font-size:10px;color:var(--t2);}
+.mex-check{margin-left:auto;width:20px;height:20px;border-radius:50%;background:var(--lime);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;}
+.mex-check.pending{background:transparent;border:1px solid var(--bd2);color:var(--t3);}
+
+/* Floating badge */
+.float-badge{
+  position:absolute;top:80px;right:-12px;
+  background:var(--s2);border:1px solid var(--bd2);
+  border-radius:12px;padding:10px 13px;
+  box-shadow:0 12px 30px rgba(0,0,0,.4);
+  font-size:11px;
+}
+.fb-title{color:var(--t2);font-size:10px;font-weight:700;margin-bottom:6px;letter-spacing:.3px;}
+.fb-icons{display:flex;gap:4px;font-size:18px;}
+
+/* ═══════════
+   HOW IT WORKS
+═══════════ */
+#how{background:var(--s1);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);}
+.steps-list{margin-top:36px;display:flex;flex-direction:column;gap:0;}
+.step{
+  display:flex;gap:16px;padding:24px 0;
+  border-bottom:1px solid var(--bd);
+}
+.step:last-child{border-bottom:none;padding-bottom:0;}
+.step-left{display:flex;flex-direction:column;align-items:center;gap:0;}
+.step-num{
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;
+  border:2px solid var(--limem);
+  background:var(--limed);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--lime);
+}
+.step-line{flex:1;width:1px;background:var(--bd);margin:8px 0;}
+.step:last-child .step-line{display:none;}
+.step-ico{font-size:22px;margin-bottom:8px;}
+.step-title{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;margin-bottom:6px;}
+.step-desc{font-size:14px;color:var(--t2);line-height:1.65;}
+.step-preview{
+  margin-top:12px;background:var(--s3);border:1px solid var(--bd);
+  border-radius:10px;padding:11px 13px;font-size:12px;color:var(--t2);
+}
+
+/* ═══════════
+   FEATURES
+═══════════ */
+#features{background:var(--bg);}
+.features-grid{margin-top:32px;display:flex;flex-direction:column;gap:12px;}
+.feat-card{
+  background:var(--s2);border:1px solid var(--bd);
+  border-radius:14px;padding:20px;
+  transition:border-color .2s;
+}
+.feat-card:active{border-color:var(--limem);}
+.feat-icon{
+  width:46px;height:46px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;margin-bottom:14px;
+}
+.fi-lime{background:var(--limed);border:1px solid var(--limem);}
+.fi-cyan{background:var(--cyand);border:1px solid rgba(71,232,255,.15);}
+.fi-org{background:rgba(255,124,71,.08);border:1px solid rgba(255,124,71,.15);}
+.fi-violet{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.15);}
+.feat-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:7px;}
+.feat-desc{font-size:13.5px;color:var(--t2);line-height:1.65;}
+.feat-tag{margin-top:12px;display:inline-flex;}
+
+/* Mini components inside cards */
+.mini-macros{display:flex;flex-direction:column;gap:7px;margin-top:14px;}
+.mm-row{display:flex;align-items:center;gap:10px;}
+.mm-label{font-size:11px;color:var(--t2);width:66px;font-weight:600;}
+.mm-bar{flex:1;height:5px;background:var(--s4);border-radius:40px;overflow:hidden;}
+.mm-fill{height:100%;border-radius:40px;}
+.mm-val{font-size:11px;font-weight:700;width:36px;text-align:right;}
+
+.mini-list{display:flex;flex-direction:column;gap:0;margin-top:14px;}
+.ml-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bd);font-size:13px;}
+.ml-item:last-child{border:none;}
+.ml-cb{width:17px;height:17px;border-radius:4px;flex-shrink:0;border:1px solid var(--bd2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;}
+.ml-cb.on{background:var(--lime);border-color:var(--lime);color:var(--bg);}
+.ml-qty{margin-left:auto;font-size:11px;color:var(--t2);font-weight:600;}
+
+.mini-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.mb-badge{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  background:var(--s3);border:1px solid var(--bd);border-radius:10px;
+  padding:10px 8px;min-width:54px;
+}
+.mb-badge.on{background:var(--limed);border-color:rgba(201,255,71,.2);}
+.mb-badge.off{opacity:.3;filter:grayscale(.5);}
+.mb-ico{font-size:20px;}
+.mb-name{font-size:9px;color:var(--t2);font-weight:600;}
+.mb-badge.on .mb-name{color:var(--lime);}
+
+/* ═══════════
+   DASHBOARD PREVIEW
+═══════════ */
+#dashboard{background:var(--s1);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);}
+.dash-preview-phone{
+  margin-top:32px;
+  background:var(--bg);
+  border:1px solid var(--bd2);border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 20px 50px rgba(0,0,0,.5);
+}
+.dp-bar{
+  background:var(--s2);border-bottom:1px solid var(--bd);
+  padding:12px 16px;display:flex;align-items:center;justify-content:space-between;
+}
+.dp-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;}
+.dp-logo span{color:var(--lime);}
+.dp-pill{background:var(--limed);border:1px solid var(--limem);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--lime);}
+.dp-body{padding:14px;}
+.dp-hero{
+  background:linear-gradient(135deg,rgba(201,255,71,.08),rgba(71,232,255,.04));
+  border:1px solid var(--limem);border-radius:12px;padding:14px;
+  margin-bottom:12px;
+}
+.dp-daynum{font-family:'Syne',sans-serif;font-weight:800;font-size:38px;color:var(--lime);line-height:1;}
+.dp-daylbl{font-size:11px;color:var(--t2);}
+.dp-progress{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.dp-pct{font-size:12px;font-weight:700;color:var(--lime);white-space:nowrap;}
+.dp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.dpg-card{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:11px;}
+.dpg-val{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;}
+.dpg-lbl{font-size:10px;color:var(--t2);margin-top:1px;}
+.dp-exs{display:flex;flex-direction:column;gap:6px;}
+.dp-ex{background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:10px;display:flex;align-items:center;gap:9px;}
+.dpex-ico{width:28px;height:28px;border-radius:7px;background:var(--limed);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.dpex-name{font-size:12px;font-weight:700;}
+.dpex-meta{font-size:10px;color:var(--t2);}
+.dpex-done{margin-left:auto;width:20px;height:20px;border-radius:50%;background:var(--lime);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;}
+.dpex-done.pend{background:transparent;border:1px solid var(--bd2);color:var(--t3);}
+/* bottom nav preview */
+.dp-nav{
+  background:var(--s1);border-top:1px solid var(--bd);
+  display:flex;padding:8px 0 4px;
+}
+.dp-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.dp-nav-icon{font-size:17px;}
+.dp-nav-lbl{font-size:8.5px;color:var(--t3);font-weight:600;}
+.dp-nav-item.act .dp-nav-lbl{color:var(--lime);}
+.dp-nav-dot{width:4px;height:4px;border-radius:50%;background:var(--lime);margin:0 auto;}
+
+.dash-points{margin-top:28px;display:flex;flex-direction:column;gap:14px;}
+.dp-point{display:flex;gap:12px;align-items:flex-start;}
+.dp-dot{
+  width:32px;height:32px;border-radius:9px;flex-shrink:0;
+  background:var(--limed);border:1px solid var(--limem);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  margin-top:2px;
+}
+.dp-ptitle{font-weight:700;font-size:14px;margin-bottom:3px;}
+.dp-pdesc{font-size:13px;color:var(--t2);line-height:1.6;}
+
+/* ═══════════
+   BENEFITS
+═══════════ */
+#benefits{background:var(--bg);}
+.benefits-list{margin-top:32px;display:flex;flex-direction:column;gap:10px;}
+.benefit-card{
+  background:var(--s2);border:1px solid var(--bd);
+  border-radius:14px;padding:20px;
+  display:flex;gap:16px;align-items:flex-start;
+  transition:border-color .2s;
+}
+.benefit-card:active{border-color:rgba(201,255,71,.2);}
+.ben-num{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:36px;
+  color:var(--bd2);line-height:1;flex-shrink:0;
+  transition:color .2s;
+}
+.ben-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:6px;}
+.ben-desc{font-size:13.5px;color:var(--t2);line-height:1.65;margin-bottom:10px;}
+.ben-stat{font-size:12px;font-weight:700;color:var(--lime);display:flex;align-items:center;gap:5px;}
+
+/* ═══════════
+   CTA
+═══════════ */
+#cta{
+  background:var(--s1);
+  border-top:1px solid var(--bd);
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.cta-glow{
+  position:absolute;top:-20%;left:50%;transform:translateX(-50%);
+  width:min(500px,100vw);height:350px;
+  background:radial-gradient(ellipse,rgba(201,255,71,.07),transparent 70%);
+  pointer-events:none;
+}
+.cta-title{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(36px,10vw,72px);
+  line-height:.95;letter-spacing:-.5px;
+  margin-bottom:16px;
+  position:relative;z-index:2;
+}
+.cta-title em{font-style:normal;color:var(--lime);}
+.cta-desc{font-size:15px;color:var(--t2);line-height:1.7;max-width:420px;margin:0 auto 28px;position:relative;z-index:2;}
+.cta-btn-wrap{position:relative;z-index:2;}
+.cta-guarantee{
+  font-size:12px;color:var(--t3);margin-top:14px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  position:relative;z-index:2;
+}
+.cta-stats{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  margin-top:48px;background:var(--bd);
+  border:1px solid var(--bd);border-radius:14px;overflow:hidden;
+  position:relative;z-index:2;
+}
+.cs-item{background:var(--s1);padding:18px 14px;text-align:center;}
+.cs-val{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:var(--lime);}
+.cs-lbl{font-size:12px;color:var(--t2);margin-top:2px;}
+
+/* ═══════════
+   FOOTER
+═══════════ */
+footer{
+  background:var(--bg);border-top:1px solid var(--bd);
+  padding:40px 20px calc(40px + var(--safe-bot));
+}
+.footer-inner{max-width:1080px;margin:0 auto;}
+.footer-brand{margin-bottom:28px;}
+.footer-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;margin-bottom:10px;}
+.footer-logo span{color:var(--lime);}
+.footer-tagline{font-size:13px;color:var(--t2);line-height:1.7;max-width:280px;margin-bottom:16px;}
+.footer-social{display:flex;gap:8px;}
+.fs{
+  width:34px;height:34px;border-radius:9px;
+  background:var(--s2);border:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;cursor:pointer;transition:border-color .18s;
+}
+.fs:active{border-color:var(--bd2);}
+.footer-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px;}
+.fc-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:12px;}
+.fc-links{display:flex;flex-direction:column;gap:9px;}
+.fc-links a{text-decoration:none;color:var(--t2);font-size:13px;transition:color .18s;}
+.fc-links a:active{color:var(--txt);}
+.footer-bottom{
+  padding-top:20px;border-top:1px solid var(--bd);
+  display:flex;flex-direction:column;gap:6px;
+}
+.fb-copy{font-size:12px;color:var(--t3);}
+.fb-made{font-size:12px;color:var(--t3);}
+.fb-made span{color:var(--lime);font-weight:700;}
+
+/* ── SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .55s ease,transform .55s ease;}
+.reveal.in{opacity:1;transform:translateY(0);}
+.rd1{transition-delay:.08s;}.rd2{transition-delay:.16s;}.rd3{transition-delay:.24s;}
+
+/* ── DESKTOP ── */
+@media(min-width:640px){
+  section{padding:100px 40px;}
+  .nav{height:64px;padding-top:0;padding-left:40px;padding-right:40px;}
+  .nav-links{display:flex;align-items:center;gap:28px;list-style:none;}
+  .nav-links a{text-decoration:none;color:var(--t2);font-size:14px;font-weight:500;transition:color .18s;}
+  .nav-links a:hover{color:var(--txt);}
+  .nav-burger{display:none;}
+  .hero{padding-top:100px;padding-left:40px;padding-right:40px;}
+  .hero-title{font-size:clamp(56px,8vw,100px);}
+  .hero-actions{flex-direction:row;max-width:440px;}
+  .btn-hero,.btn-ghost{width:auto;}
+  .hero-mockup{margin-top:52px;}
+  .float-badge{right:-24px;}
+  .steps-list{display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;}
+  .step{flex-direction:column;padding:0;border:none;}
+  .step-left{flex-direction:row;align-items:center;margin-bottom:16px;}
+  .step-line{display:none;}
+  .features-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .benefits-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .cta-stats{grid-template-columns:repeat(4,1fr);}
+  .footer-cols{grid-template-columns:1fr 1fr 1fr;}
+  .footer-bottom{flex-direction:row;justify-content:space-between;align-items:center;}
+  .dash-preview-phone{max-width:360px;margin:32px auto 0;}
+  .dash-preview-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-top:0;}
+  .dash-preview-phone{margin-top:0;}
+}
+@media(min-width:900px){
+  .features-grid{grid-template-columns:1fr 1fr 1fr;}
+  .hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
+  .hero-mockup{margin-top:0;}
+  .hero-content{padding-top:0;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="nav" id="navbar">
+  <div class="nav-logo">Fit<span>Forge</span> AI</div>
+  <ul class="nav-links">
+    <li><a href="#how">Comment ça marche</a></li>
+    <li><a href="#features">Fonctionnalités</a></li>
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#benefits">Bénéfices</a></li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button class="nav-cta-sm" onclick="scrollToCta()">Commencer — Gratuit</button>
+    <div class="nav-burger" id="burger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- ── MOBILE MENU ── -->
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mm-close" onclick="toggleMenu()">✕</div>
+  <a class="mm-link" href="#how" onclick="toggleMenu()">Comment ça marche</a>
+  <a class="mm-link" href="#features" onclick="toggleMenu()">Fonctionnalités</a>
+  <a class="mm-link" href="#dashboard" onclick="toggleMenu()">Dashboard</a>
+  <a class="mm-link" href="#benefits" onclick="toggleMenu()">Bénéfices</a>
+  <button class="mm-cta" onclick="scrollToCta();toggleMenu()">⚡ Commencer — Gratuit</button>
+</div>
+
+<!-- ══════════════════════════
+     HERO
+══════════════════════════ -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-label reveal">
+        <div class="pulse"></div>
+        IA Fitness · Challenge 30 Jours
+      </div>
+
+      <h1 class="hero-title reveal rd1">
+        TON CORPS.<br>
+        <span class="outline">TON PLAN.</span><br>
+        <span class="fill">30 JOURS.</span>
+      </h1>
+
+      <p class="hero-sub reveal rd2">Généré par l'intelligence artificielle</p>
+
+      <p class="hero-desc reveal rd2">Dis-nous ton objectif. Notre IA crée en 30 secondes ton programme fitness + nutrition sur 30 jours, entièrement personnalisé.</p>
+
+      <div class="hero-actions reveal rd3" style="width:100%;max-width:100%;">
+        <button class="btn-hero" onclick="scrollToCta()">⚡ Générer mon challenge — Gratuit</button>
+        <button class="btn-ghost">▶ Voir la démo</button>
+      </div>
+
+      <div class="social-proof reveal rd3" style="max-width:100%;overflow:hidden;">
+        <div class="avatars">
+          <div class="av">🧑</div><div class="av">👩</div>
+          <div class="av">🧔</div><div class="av">👱</div>
+        </div>
+        <div>
+          <div class="stars">★★★★★</div>
+          <div class="sp-text"><strong>4 800+</strong> challengers actifs</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- App mockup -->
+    <div class="hero-mockup reveal" style="position:relative;">
+      <div class="mockup-bar">
+        <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <div class="url-bar">🔒 app.fitforgeai.com</div>
+      </div>
+      <div class="mockup-body">
+        <div class="m-greeting">Lundi 14 jan · Bonne journée 👋</div>
+        <div class="m-name">Bonjour, <span>Alex</span></div>
+        <div class="m-stats">
+          <div class="ms"><div class="ms-val" style="color:var(--lime);">47%</div><div class="ms-lbl">Challenge</div></div>
+          <div class="ms"><div class="ms-val" style="color:var(--org);">🔥7</div><div class="ms-lbl">Streak</div></div>
+          <div class="ms"><div class="ms-val" style="color:var(--cyan);">Niv.6</div><div class="ms-lbl">XP 2840</div></div>
+        </div>
+        <div class="m-prog">
+          <div class="mp-row"><span class="mp-title">Challenge 30 jours</span><span class="mp-day">Jour 14</span></div>
+          <div class="pbar"><div class="pfill" style="width:47%;background:linear-gradient(90deg,var(--lime),var(--cyan));"></div></div>
+        </div>
+        <div class="m-exs">
+          <div class="mex"><div class="mex-ico">🏋️</div><div><div class="mex-name">Squat Barre</div><div class="mex-sets">4 × 10 reps</div></div><div class="mex-check">✓</div></div>
+          <div class="mex"><div class="mex-ico">💪</div><div><div class="mex-name">Presse à cuisse</div><div class="mex-sets">3 × 12 reps</div></div><div class="mex-check">✓</div></div>
+          <div class="mex"><div class="mex-ico">🧘</div><div><div class="mex-name">Fentes marchées</div><div class="mex-sets">3 × 10 reps</div></div><div class="mex-check pending">›</div></div>
+        </div>
+      </div>
+      <!-- Floating -->
+      <div class="float-badge">
+        <div class="fb-title">BADGES</div>
+        <div class="fb-icons">🔥💎🏋️<span style="opacity:.3;">⭐</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     HOW IT WORKS
+══════════════════════════ -->
+<section id="how">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="sec-tag">Processus</div>
+      <h2 class="sec-title">3 étapes,<br>un challenge sur-mesure</h2>
+      <p class="sec-desc">De ton profil à ton premier workout en moins de 2 minutes.</p>
+    </div>
+
+    <div class="steps-list">
+      <div class="step reveal rd1">
+        <div class="step-left">
+          <div class="step-num">1</div>
+          <div class="step-line"></div>
+        </div>
+        <div>
+          <div class="step-ico">📋</div>
+          <div class="step-title">Tu remplis ton profil</div>
+          <p class="step-desc">Objectif, niveau, équipement, disponibilité, préférences alimentaires. 90 secondes chrono.</p>
+          <div class="step-preview" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
+            <span class="pill pill-lime" style="font-size:10px;">🎯 Objectif</span>
+            <span class="pill pill-lime" style="font-size:10px;">🏃 Niveau</span>
+            <span class="pill pill-lime" style="font-size:10px;">⏱ Dispo</span>
+            <span class="pill pill-lime" style="font-size:10px;">🥗 Nutrition</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step reveal rd2">
+        <div class="step-left">
+          <div class="step-num">2</div>
+          <div class="step-line"></div>
+        </div>
+        <div>
+          <div class="step-ico">🤖</div>
+          <div class="step-title">L'IA génère ton programme</div>
+          <p class="step-desc">Sport quotidien, plan nutrition, liste de courses, jalons de progression. Tout personnalisé.</p>
+          <div class="step-preview">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <span style="font-size:11px;color:var(--t2);">Génération du programme…</span>
+              <span style="font-size:11px;font-weight:700;color:var(--lime);">72%</span>
+            </div>
+            <div class="pbar"><div class="pfill" style="width:72%;background:linear-gradient(90deg,var(--lime),var(--cyan));"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step reveal rd3">
+        <div class="step-left">
+          <div class="step-num">3</div>
+          <div class="step-line"></div>
+        </div>
+        <div>
+          <div class="step-ico">🚀</div>
+          <div class="step-title">Tu suis et tu progresses</div>
+          <p class="step-desc">Chaque jour tu valides tes exercices, coches tes repas, gagnes de l'XP. Le coach IA t'adapte le programme.</p>
+          <div class="step-preview" style="display:flex;gap:10px;">
+            <div style="text-align:center;flex:1;">
+              <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--lime);">+340</div>
+              <div style="font-size:10px;color:var(--t2);">XP aujourd'hui</div>
+            </div>
+            <div style="text-align:center;flex:1;">
+              <div style="font-size:20px;">🏆</div>
+              <div style="font-size:10px;color:var(--t2);">Badge gagné</div>
+            </div>
+            <div style="text-align:center;flex:1;">
+              <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--org);">🔥7</div>
+              <div style="font-size:10px;color:var(--t2);">Jours streak</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     FEATURES
+══════════════════════════ -->
+<section id="features">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="sec-tag">Fonctionnalités</div>
+      <h2 class="sec-title">Tout ce qu'il<br>te faut. Rien de plus.</h2>
+    </div>
+
+    <div class="features-grid">
+
+      <div class="feat-card reveal rd1">
+        <div class="feat-icon fi-lime">🏋️</div>
+        <div class="feat-title">Programme sportif quotidien</div>
+        <p class="feat-desc">Exercices, séries, reps, technique et temps de repos. Adapté à ton équipement et ajusté chaque semaine.</p>
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:6px;">
+          <div style="background:var(--s3);border:1px solid var(--bd);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:9px;">
+            <span style="font-size:15px;">🏋️</span>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:700;">Squat Barre</div><div style="font-size:10px;color:var(--t2);">4 × 10 reps · 70% 1RM</div></div>
+            <div style="width:18px;height:18px;border-radius:50%;background:var(--lime);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;">✓</div>
+          </div>
+          <div style="background:var(--s3);border:1px solid rgba(201,255,71,.2);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:9px;">
+            <span style="font-size:15px;">💪</span>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:700;">Presse à cuisse</div><div style="font-size:10px;color:var(--lime);">En cours · S2 / 3</div></div>
+            <div style="width:18px;height:18px;border-radius:50%;border:1px solid var(--limem);background:var(--limed);color:var(--lime);display:flex;align-items:center;justify-content:center;font-size:8px;">▶</div>
+          </div>
+        </div>
+        <span class="feat-tag pill pill-lime" style="font-size:10px;">🤖 Adaptatif IA</span>
+      </div>
+
+      <div class="feat-card reveal rd2">
+        <div class="feat-icon fi-cyan">🥗</div>
+        <div class="feat-title">Plan nutrition personnalisé</div>
+        <p class="feat-desc">Repas du jour avec recettes simples, calories et macros. Adapté à ton objectif.</p>
+        <div class="mini-macros">
+          <div class="mm-row"><span class="mm-label">Protéines</span><div class="mm-bar"><div class="mm-fill" style="width:78%;background:var(--lime);"></div></div><span class="mm-val" style="color:var(--lime);">156g</span></div>
+          <div class="mm-row"><span class="mm-label">Glucides</span><div class="mm-bar"><div class="mm-fill" style="width:55%;background:var(--cyan);"></div></div><span class="mm-val" style="color:var(--cyan);">220g</span></div>
+          <div class="mm-row"><span class="mm-label">Lipides</span><div class="mm-bar"><div class="mm-fill" style="width:40%;background:var(--org);"></div></div><span class="mm-val" style="color:var(--org);">64g</span></div>
+        </div>
+        <span class="feat-tag pill pill-cyan" style="font-size:10px;">2 140 kcal / jour</span>
+      </div>
+
+      <div class="feat-card reveal rd1">
+        <div class="feat-icon fi-violet">🛒</div>
+        <div class="feat-title">Liste de courses auto</div>
+        <p class="feat-desc">Générée chaque semaine depuis ton plan nutrition. Organisée par catégorie, quantités exactes.</p>
+        <div class="mini-list">
+          <div class="ml-item"><div class="ml-cb on">✓</div>Blanc de poulet<span class="ml-qty">800g</span></div>
+          <div class="ml-item"><div class="ml-cb on">✓</div>Riz complet<span class="ml-qty">1kg</span></div>
+          <div class="ml-item"><div class="ml-cb"></div>Épinards frais<span class="ml-qty">300g</span></div>
+          <div class="ml-item"><div class="ml-cb"></div>Œufs bio<span class="ml-qty">× 12</span></div>
+        </div>
+      </div>
+
+      <div class="feat-card reveal rd2">
+        <div class="feat-icon fi-org">🏆</div>
+        <div class="feat-title">Gamification & motivation</div>
+        <p class="feat-desc">XP, niveaux, badges et messages du coach IA. Conçu pour te garder engagé 30 jours.</p>
+        <div class="mini-badges">
+          <div class="mb-badge on"><div class="mb-ico">🔥</div><div class="mb-name">Streak 7j</div></div>
+          <div class="mb-badge on"><div class="mb-ico">💎</div><div class="mb-name">Mi-parco.</div></div>
+          <div class="mb-badge on"><div class="mb-ico">🏋️</div><div class="mb-name">Iron Start</div></div>
+          <div class="mb-badge off"><div class="mb-ico">🚀</div><div class="mb-name">Finisher</div></div>
+        </div>
+        <div style="margin-top:12px;background:var(--s3);border-left:3px solid var(--lime);border-radius:0 8px 8px 0;padding:10px 12px;font-size:12px;color:var(--t2);line-height:1.6;">
+          "Alex, encore 3 séances pour débloquer Star Week ⭐ — tu y es presque."
+          <div style="margin-top:5px;font-size:10px;color:var(--lime);font-weight:700;">— Coach IA FitForge</div>
+        </div>
+      </div>
+
+      <div class="feat-card reveal" style="grid-column:1/-1;">
+        <div class="feat-icon fi-lime">📈</div>
+        <div class="feat-title">Suivi de progression</div>
+        <p class="feat-desc">Stats hebdomadaires, courbe XP, calendrier du challenge et historique des workouts. Tu vois tes progrès, semaine après semaine.</p>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px;">
+          <div style="background:var(--s3);border-radius:9px;padding:11px;text-align:center;"><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--lime);">47%</div><div style="font-size:10px;color:var(--t2);">Challenge</div></div>
+          <div style="background:var(--s3);border-radius:9px;padding:11px;text-align:center;"><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--cyan);">12</div><div style="font-size:10px;color:var(--t2);">Workouts</div></div>
+          <div style="background:var(--s3);border-radius:9px;padding:11px;text-align:center;"><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--org);">🔥7</div><div style="font-size:10px;color:var(--t2);">Streak</div></div>
+          <div style="background:var(--s3);border-radius:9px;padding:11px;text-align:center;"><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--violet);">2840</div><div style="font-size:10px;color:var(--t2);">XP total</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     DASHBOARD PREVIEW
+══════════════════════════ -->
+<section id="dashboard">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="sec-tag">Interface</div>
+      <h2 class="sec-title">Un dashboard<br>conçu pour l'action</h2>
+      <p class="sec-desc">Tout au même endroit. Workout, nutrition, progression et coach IA en un coup d'œil.</p>
+    </div>
+
+    <div class="dash-preview-wrap">
+      <div class="dash-preview-phone reveal rd1">
+        <div class="dp-bar">
+          <div class="dp-logo">Fit<span>Forge</span></div>
+          <div class="dp-pill">⚡ Jour 14 / 30</div>
+        </div>
+        <div class="dp-body">
+          <div class="dp-hero">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+              <div>
+                <div style="font-size:11px;color:var(--t2);">Bonne journée 👋</div>
+                <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:17px;">Bonjour, <span style="color:var(--lime);">Alex</span></div>
+              </div>
+              <div style="text-align:right;">
+                <div class="dp-daynum">14</div>
+                <div class="dp-daylbl">sur 30</div>
+              </div>
+            </div>
+            <div class="dp-progress">
+              <div class="pbar" style="flex:1;"><div class="pfill" style="width:47%;background:linear-gradient(90deg,var(--lime),var(--cyan));"></div></div>
+              <div class="dp-pct">47%</div>
+            </div>
+          </div>
+          <div class="dp-grid">
+            <div class="dpg-card"><div class="dpg-val" style="color:var(--org);">🔥 7j</div><div class="dpg-lbl">Streak</div></div>
+            <div class="dpg-card"><div class="dpg-val" style="color:var(--lime);">2840</div><div class="dpg-lbl">XP · Niv.6</div></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:7px;letter-spacing:.3px;">SÉANCE DU JOUR</div>
+          <div class="dp-exs">
+            <div class="dp-ex"><div class="dpex-ico">🏋️</div><div><div class="dpex-name">Squat Barre</div><div class="dpex-meta">4 × 10 reps</div></div><div class="dpex-done">✓</div></div>
+            <div class="dp-ex"><div class="dpex-ico">💪</div><div><div class="dpex-name">Presse cuisse</div><div class="dpex-meta">3 × 12 reps</div></div><div class="dpex-done">✓</div></div>
+            <div class="dp-ex" style="border-color:rgba(201,255,71,.2);"><div class="dpex-ico">🧘</div><div><div class="dpex-name">Fentes marchées</div><div class="dpex-meta" style="color:var(--lime);">En cours</div></div><div class="dpex-done pend">▶</div></div>
+          </div>
+        </div>
+        <div class="dp-nav">
+          <div class="dp-nav-item act"><div class="dp-nav-icon">⚡</div><div class="dp-nav-lbl">Dashboard</div><div class="dp-nav-dot"></div></div>
+          <div class="dp-nav-item"><div class="dp-nav-icon">🏋️</div><div class="dp-nav-lbl">Workout</div></div>
+          <div class="dp-nav-item"><div class="dp-nav-icon">🥗</div><div class="dp-nav-lbl">Nutrition</div></div>
+          <div class="dp-nav-item"><div class="dp-nav-icon">🛒</div><div class="dp-nav-lbl">Courses</div></div>
+          <div class="dp-nav-item"><div class="dp-nav-icon">📈</div><div class="dp-nav-lbl">Stats</div></div>
+        </div>
+      </div>
+
+      <div class="dash-points reveal rd2">
+        <div class="dp-point">
+          <div class="dp-dot">⚡</div>
+          <div><div class="dp-ptitle">Vue journalière complète</div><div class="dp-pdesc">Workout, repas, calories et objectifs du jour sur un seul écran.</div></div>
+        </div>
+        <div class="dp-point">
+          <div class="dp-dot">📈</div>
+          <div><div class="dp-ptitle">Progression en temps réel</div><div class="dp-pdesc">Suivi du challenge jour par jour, statistiques hebdomadaires et courbes d'évolution.</div></div>
+        </div>
+        <div class="dp-point">
+          <div class="dp-dot">🤖</div>
+          <div><div class="dp-ptitle">Coach IA intégré</div><div class="dp-pdesc">Messages personnalisés et ajustements automatiques basés sur tes données réelles.</div></div>
+        </div>
+        <div class="dp-point">
+          <div class="dp-dot">📱</div>
+          <div><div class="dp-ptitle">100% mobile-first</div><div class="dp-pdesc">Conçu pour le téléphone. Ajoute l'app à ton écran d'accueil et valide tes exercices depuis n'importe où.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     BENEFITS
+══════════════════════════ -->
+<section id="benefits">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="sec-tag">Pourquoi FitForge</div>
+      <h2 class="sec-title">Ce que tu vas<br>vraiment gagner</h2>
+    </div>
+
+    <div class="benefits-list">
+      <div class="benefit-card reveal rd1">
+        <div class="ben-num">01</div>
+        <div>
+          <div class="ben-title">Motivation qui dure</div>
+          <p class="ben-desc">La gamification maintient ton engagement 30 jours. XP, badges et streaks créent une habitude réelle.</p>
+          <div class="ben-stat">↑ 3× plus d'adhérence qu'un programme classique</div>
+        </div>
+      </div>
+      <div class="benefit-card reveal rd2">
+        <div class="ben-num">02</div>
+        <div>
+          <div class="ben-title">Progression visible</div>
+          <p class="ben-desc">Des stats claires semaine après semaine. Tu vois tes forces augmenter, ta condition s'améliorer.</p>
+          <div class="ben-stat">↑ Résultats mesurables dès la semaine 1</div>
+        </div>
+      </div>
+      <div class="benefit-card reveal rd1">
+        <div class="ben-num">03</div>
+        <div>
+          <div class="ben-title">Coaching intelligent</div>
+          <p class="ben-desc">L'IA analyse ta progression et ajuste ton programme en temps réel. Pas de plateau, pas d'intensité mal calibrée.</p>
+          <div class="ben-stat">🤖 Ajustements automatiques toutes les 48h</div>
+        </div>
+      </div>
+      <div class="benefit-card reveal rd2">
+        <div class="ben-num">04</div>
+        <div>
+          <div class="ben-title">Résultats concrets</div>
+          <p class="ben-desc">Perte de poids, gain musculaire ou remise en forme — un plan précis, des objectifs clairs.</p>
+          <div class="ben-stat">↑ 87% atteignent leur objectif au jour 30</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     CTA
+══════════════════════════ -->
+<section id="cta">
+  <div class="section-inner" style="text-align:center;">
+    <div class="cta-glow"></div>
+    <div class="reveal">
+      <div class="sec-tag" style="justify-content:center;">Commence maintenant</div>
+      <h2 class="cta-title">Ton challenge<br><em>commence</em><br>aujourd'hui</h2>
+      <p class="cta-desc">90 secondes pour remplir ton profil. Notre IA génère ton programme complet. Gratuit pour commencer.</p>
+      <div class="cta-btn-wrap">
+        <button class="btn-hero" style="max-width:400px;margin:0 auto 14px;" onclick="alert('🚀 MVP en cours de construction — bientôt disponible !')">⚡ Générer mon challenge — Gratuit</button>
+        <div class="cta-guarantee">✓ Sans carte bancaire &nbsp;·&nbsp; Résultats garantis ou remboursé</div>
+      </div>
+      <div class="cta-stats">
+        <div class="cs-item"><div class="cs-val">4 800+</div><div class="cs-lbl">Challengers actifs</div></div>
+        <div class="cs-item"><div class="cs-val">87%</div><div class="cs-lbl">Objectif atteint J30</div></div>
+        <div class="cs-item"><div class="cs-val">30s</div><div class="cs-lbl">Pour générer ton plan</div></div>
+        <div class="cs-item"><div class="cs-val">★ 4.9</div><div class="cs-lbl">Note moyenne</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     FOOTER
+══════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">Fit<span>Forge</span> AI</div>
+      <p class="footer-tagline">Ton coach fitness IA. Challenge personnalisé 30 jours, nutrition, gamification et progression quotidienne.</p>
+      <div class="footer-social">
+        <div class="fs">𝕏</div><div class="fs">in</div>
+        <div class="fs">📷</div><div class="fs">▶</div>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div><div class="fc-title">Produit</div><div class="fc-links"><a href="#">Fonctionnalités</a><a href="#">Tarifs</a><a href="#">Roadmap</a><a href="#">Changelog</a></div></div>
+      <div><div class="fc-title">Ressources</div><div class="fc-links"><a href="#">Blog fitness</a><a href="#">Guides nutrition</a><a href="#">Exercices</a><a href="#">Communauté</a></div></div>
+      <div><div class="fc-title">Légal</div><div class="fc-links"><a href="#">Mentions légales</a><a href="#">CGU</a><a href="#">Confidentialité</a><a href="#">Contact</a></div></div>
+    </div>
+    <div class="footer-bottom">
+      <div class="fb-copy">© 2025 FitForge AI. Tous droits réservés.</div>
+      <div class="fb-made">Conçu avec <span>l'IA</span> · Paris 🇫🇷</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* MENU */
+function toggleMenu(){
+  const m=document.getElementById('mobileMenu');
+  m.classList.toggle('open');
+  document.body.style.overflow=m.classList.contains('open')?'hidden':'';
+}
+function scrollToCta(){
+  document.getElementById('cta').scrollIntoView({behavior:'smooth'});
+}
+
+/* NAVBAR shadow on scroll */
+window.addEventListener('scroll',()=>{
+  const nav=document.getElementById('navbar');
+  nav.style.boxShadow=window.scrollY>10?'0 4px 20px rgba(0,0,0,.3)':'';
+},{ passive:true });
+
+/* SCROLL REVEAL */
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});
+},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
