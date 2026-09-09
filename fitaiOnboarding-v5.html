@@ -682,6 +682,49 @@ function buildFinal()  {
 /* ── AI ── */
 
 
+// Remettre le dashboard à zéro avant de générer un nouveau programme
+async function resetDashboard() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    const userId = session.user.id;
+
+    // Supprimer tous les anciens programmes
+    await sb
+      .from('programmes')
+      .delete()
+      .eq('user_id', userId);
+
+    // Supprimer tous les logs
+    await sb
+      .from('daily_logs')
+      .delete()
+      .eq('user_id', userId);
+
+    // Remettre la progression à zéro
+    await sb
+      .from('progression')
+      .upsert({
+        user_id:         userId,
+        xp_total:        0,
+        niveau:          1,
+        streak_actuel:   0,
+        streak_record:   0,
+        workouts_total:  0,
+        badges:          [],
+      }, { onConflict: 'user_id' });
+
+    // Vider le localStorage
+    localStorage.removeItem('programme_id');
+    localStorage.removeItem('user_id');
+
+    console.log('Dashboard remis à zéro ✓');
+  } catch(err) {
+    console.error('Reset error:', err);
+  }
+}
+
+
 async function startAI() {
   show(8, 1);
 
@@ -729,6 +772,9 @@ async function startAI() {
       nutrition:         SEL.nut,
     };
 
+     // ⬇️ RESET AVANT DE GÉNÉRER
+    await resetDashboard();
+
     // Appel Edge Function
     const { data: { session: sess } } = await sb.auth.getSession();
     const res = await fetch(SUPABASE_FUNCTION_URL, {
@@ -750,6 +796,7 @@ async function startAI() {
     document.getElementById('aiSt').textContent = 'Tout est configuré !';
 
     // Sauvegarder pour le dashboard
+    localStorage.removeItem('programme_id');
     localStorage.setItem('programme_id', result.programme_id);
     localStorage.setItem('user_id', userId);
 
@@ -757,7 +804,9 @@ async function startAI() {
     if (navigator.vibrate) navigator.vibrate(40);
 
     // Aller vers l'écran final
-    setTimeout(() => show(9, 1), 900);
+    setTimeout(() => {
+      window.location.href = 'fitai-dashboard-connected.html';
+  }, 900);
 
   } catch (err) {
     document.getElementById('aiSub').textContent = '❌ ' + err.message;
